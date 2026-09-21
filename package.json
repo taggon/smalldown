@@ -1,0 +1,40 @@
+{
+  "name": "smalldown",
+  "version": "0.1.0",
+  "description": "Small markdown editor for small writing — comments, issue descriptions, commit messages. Renders in place; no Write/Preview toggle",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsc --noEmit && vite build",
+    "build:lib": "tsc --noEmit && vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json",
+    "preview": "vite preview",
+    "test:unit": "vitest run --project unit",
+    "test:browser": "vitest run --project browser"
+  },
+  "devDependencies": {
+    "@vitest/browser": "^5.0.3",
+    "@vitest/browser-playwright": "^5.0.3",
+    "@vitest/coverage-v8": "^5.0.3",
+    "happy-dom": "^20.14.5",
+    "playwright": "^1.63.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  },
+  "packageManager": "pnpm@12.8.1"
+}

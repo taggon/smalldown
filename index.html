@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>smalldown demo</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 860px;
+        margin: 40px auto;
+        padding: 0 16px;
+        color: #1f2328;
+      }
+      h1 { font-size: 20px; }
+      h2 { font-size: 14px; color: #57606a; margin: 28px 0 8px; }
+      .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+      @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
+      label { font-size: 12px; color: #57606a; }
+      .rules { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+      .rules label { display: inline-flex; gap: 4px; align-items: center; cursor: pointer; }
+      .toolbar { display: flex; gap: 8px; margin-bottom: 8px; }
+      .toolbar button { font-size: 12px; padding: 3px 10px; border: 1px solid #d0d7de; background: #fff; border-radius: 6px; cursor: pointer; }
+      .toolbar button:disabled { opacity: 0.4; cursor: default; }
+      .src {
+        background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px;
+        padding: 10px 12px; min-height: 80px; white-space: pre-wrap;
+        font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: #57606a;
+      }
+      .hint { font-size: 12px; color: #8b949e; margin-top: 8px; }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+      integrity="sha384-rCCjoCPCsizaAAYVoz1Q0CmCTvnctK0JkfCSjx7IIxexTBg+uCKtFYycedUjMyA2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@twinkleplop/theme-github@0.2.2/dist/light.css"
+      integrity="sha384-wV54RauSpm9+qCVmuJJVUUxVflNn4AfjvLUHaGg2xp+5OjS2UPTL698oV7y+jfab"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <h1>smalldown</h1>
+    <div class="rules" id="rules"></div>
+
+    <h2>Prism</h2>
+    <div class="toolbar">
+      <button id="prism-undo" title="Cmd/Ctrl+Z">↩ undo</button>
+      <button id="prism-redo" title="Cmd/Ctrl+Shift+Z">↪ redo</button>
+    </div>
+    <div class="layout">
+      <div><div id="editor-prism"></div></div>
+      <div><div id="src-prism" class="src"></div><p class="hint">마크다운 원문 (실시간)</p></div>
+    </div>
+
+    <h2>twinkleplop</h2>
+    <div class="toolbar">
+      <button id="tp-undo" title="Cmd/Ctrl+Z">↩ undo</button>
+      <button id="tp-redo" title="Cmd/Ctrl+Shift+Z">↪ redo</button>
+    </div>
+    <div class="layout">
+      <div><div id="editor-tp"></div></div>
+      <div><div id="src-tp" class="src"></div><p class="hint">마크다운 원문 (실시간)</p></div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"
+      integrity="sha384-BGaNxfftg+9+TtC098wxawPFVEUpKYvaiCgbB0iqAMjK/4jDdmUY+oGxrPNvnXEf"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"
+      integrity="sha384-PeOqKNW/piETaCg8rqKFy+Pm6KEk7e36/5YZE5XO/OaFdO+/Aw3O8qZ9qDPKVUgx"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"
+      integrity="sha384-WJdEkJKrbsqw0evQ4GB6mlsKe5cGTxBOw4KAEIa52ZLB7DDpliGkwdme/HMa5n1m"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"
+      integrity="sha384-9WmlN8ABpoFSSHvBGGjhvB3E/D8UkNB9HpLJjBQFC2VSQsM1odiQDv4NbEo+7l15"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"
+      integrity="sha384-RhrmFFMb0ZCHImjFMpR/UE3VEtIVTCtNrtKQqXCzqXZNJala02N3UbVhi+qzw3CY"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
