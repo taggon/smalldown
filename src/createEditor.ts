@@ -83,7 +83,7 @@ export function createEditor(el: HTMLElement, opts: EditorOptions = {}): Editor 
       ? createParser(opts.parserOptions)
       : (opts.parser ?? createParser());
   const doc = el.ownerDocument;
-  injectBaseCss(doc);
+  injectBaseCss(el);
 
   el.classList.add(styles.editor, ...(opts.classes?.editor ?? []));
   el.setAttribute('contenteditable', 'plaintext-only');
@@ -116,6 +116,7 @@ export function createEditor(el: HTMLElement, opts: EditorOptions = {}): Editor 
   const caret = createCaret({ el, doc });
   const highlight = opts.syntaxHighlight
     ? createHighlight({
+        el,
         doc,
         fn: opts.syntaxHighlight,
         caret,

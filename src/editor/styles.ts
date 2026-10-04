@@ -101,12 +101,16 @@ export const STYLESHEET: string = RULES.map(
   (r) => `.${cls(r.name)}${r.sel ?? ''}{${r.decl}}`,
 ).join('');
 
-// One <style> per document.
-const injectedDocs = new WeakSet<Document>();
-export function injectBaseCss(doc: Document): void {
-  if (injectedDocs.has(doc) || !doc.head) return;
-  injectedDocs.add(doc);
+// One <style> per root node — a shadow tree needs its own copy, since
+// document-head CSS does not reach into ShadowRoots.
+const injectedRoots = new WeakSet<Node>();
+export function injectBaseCss(el: HTMLElement): void {
+  const doc = el.ownerDocument;
+  const root = el.getRootNode();
+  const parent = root instanceof ShadowRoot ? root : doc.head;
+  if (!parent || injectedRoots.has(root)) return;
+  injectedRoots.add(root);
   const style = doc.createElement('style');
   style.textContent = STYLESHEET;
-  doc.head.appendChild(style);
+  parent.appendChild(style);
 }
