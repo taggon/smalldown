@@ -125,6 +125,20 @@ All optional, all combinable:
 
 `**bold**`, `*italic*` and `***both***` are always on.
 
+Pass them straight to `createEditor` as `parserOptions`, or build the
+parser yourself when you reuse it elsewhere:
+
+```js
+import { createEditor, createParser } from 'smalldown';
+
+// Shorthand — the editor builds the parser internally.
+createEditor(el, { parserOptions: { heading: true, image: true } });
+
+// Same result, explicit parser (handy when parsing elsewhere too).
+const parser = createParser({ heading: true, image: true });
+createEditor(el, { parser });
+```
+
 Links only allow `http(s):`, `mailto:`, and relative `/#.` URLs; other
 schemes render as plain text.
 
