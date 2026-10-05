@@ -1,5 +1,6 @@
 import type { Caret } from './caret';
 import { styles } from './styles';
+import { activeSelection } from './selection';
 
 /** Body span of a PRE (pure function). */
 export function codeBodyOf(pre: HTMLElement): HTMLElement | null {
@@ -17,6 +18,7 @@ export function bodyCode(body: Element): string {
 /** Shared highlight surface every operation takes explicitly; the
  *  factory only binds. */
 interface HighlightDeps {
+  el: HTMLElement;
   doc: Document;
   fn: (code: string, lang: string) => string | null | Promise<string | null>;
   caret: Caret;
@@ -50,7 +52,7 @@ function applyHtml(d: HighlightDeps, pre: HTMLElement, code: string, html: strin
 
   // Preserve caret/selection inside the body (equal text totals make
   // this exact).
-  const sel = doc.getSelection?.();
+  const sel = activeSelection(d.el, doc);
   let start: number | null = null;
   let end: number | null = null;
   if (sel && sel.rangeCount && sel.anchorNode && body.contains(sel.anchorNode)) {

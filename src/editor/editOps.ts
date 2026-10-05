@@ -2,6 +2,7 @@ import type { Parser } from '../createParser';
 import type { Caret } from './caret';
 import type { Reconcile } from './reconcile';
 import { isContainerTag, isListTag, prefixOf, nextPrefix, readSource } from './sourceSpace';
+import { activeSelection } from './selection';
 
 /**
  * Key-driven edits: Enter/Backspace/Tab, text insertion, input
@@ -65,12 +66,17 @@ function tagOf(el: HTMLElement, b: number): string {
 function insertText(d: EditDeps, text: string): void {
   const { el, doc, markPreEdit } = d;
   markPreEdit();
-  try {
-    if (doc.execCommand && doc.execCommand('insertText', false, text)) return;
-  } catch {
-    /* fall through */
+  // execCommand targets the document selection, which cannot address a
+  // shadow tree — go straight to the Range path there.
+  const shadowed = el.getRootNode() instanceof ShadowRoot;
+  if (!shadowed) {
+    try {
+      if (doc.execCommand && doc.execCommand('insertText', false, text)) return;
+    } catch {
+      /* fall through */
+    }
   }
-  const sel = doc.getSelection?.();
+  const sel = activeSelection(el, doc);
   if (sel?.rangeCount) {
     const r = sel.getRangeAt(0);
     r.deleteContents();
@@ -85,7 +91,7 @@ function insertText(d: EditDeps, text: string): void {
 function handleEnter(d: EditDeps): void {
   const { el, doc, caret, rec } = d;
   // A selection is replaced by Enter — delete it first (§6.4).
-  const sel0 = doc.getSelection?.();
+  const sel0 = activeSelection(el, doc);
   let hadSelection = false;
   if (sel0 && sel0.rangeCount && !sel0.isCollapsed) {
     hadSelection = true;
@@ -348,7 +354,7 @@ function indentLines(d: EditDeps, s: LinePos, e: LinePos, shift: boolean, collap
 
   rec.reconcileRecord('indent', sources, { block: s.block, offset: off(s.block, s.line, s.offset) });
   if (!collapsed) {
-    const sel = doc.getSelection?.();
+    const sel = activeSelection(el, doc);
     const rootS = el.children[Math.min(s.block, el.children.length - 1)];
     const rootE = el.children[Math.min(e.block, el.children.length - 1)];
     if (sel && rootS && rootE) {
@@ -373,7 +379,7 @@ function indentLines(d: EditDeps, s: LinePos, e: LinePos, shift: boolean, collap
  */
 function handleTab(d: EditDeps, shift: boolean): boolean {
   const { el, doc, caret } = d;
-  const sel = doc.getSelection?.();
+  const sel = activeSelection(el, doc);
   if (!sel || sel.rangeCount === 0) return false;
   const range = sel.getRangeAt(0);
   const s = caret.locateLine(range.startContainer, range.startOffset);
@@ -458,7 +464,7 @@ function handleLineNav(d: EditDeps, home: boolean, shift: boolean): boolean {
   // the previous line's last node, which would read as that line on the
   // next navigation.
   const f = caret.pointAt(lineEl, home ? 0 : lineLen);
-  const sel = doc.getSelection?.();
+  const sel = activeSelection(el, doc);
   if (!sel) return false;
   if (shift) {
     // Keep the anchor, move only the focus.

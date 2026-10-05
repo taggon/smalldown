@@ -48,6 +48,8 @@ npm install smalldown
 
 Works in Chromium, Safari and Firefox (`plaintext-only` where available,
 plain `contenteditable` fallback elsewhere). TypeScript types included.
+Embeds inside a Shadow DOM are supported: caret operations resolve
+through the shadow root's selection where the engine provides one.
 Accessibility: the host gets `role="textbox"` + `aria-multiline`, and
 `placeholder` doubles as `aria-label` unless the element already carries
 one.

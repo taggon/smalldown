@@ -1,6 +1,6 @@
 {
   "name": "smalldown",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Small markdown editor for small writing — comments, issue descriptions, commit messages. Renders in place; no Write/Preview toggle",
   "type": "module",
   "license": "MIT",

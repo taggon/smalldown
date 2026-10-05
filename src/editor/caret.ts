@@ -1,5 +1,6 @@
 import { isContainerTag, readSource } from './sourceSpace';
 import { styles } from './styles';
+import { activeSelection } from './selection';
 
 // ---- Pure helpers (module scope) ------------------------------------------
 
@@ -102,7 +103,7 @@ export function createCaret({ el, doc }: { el: HTMLElement; doc: Document }) {
 
   /** Caret as (block, line, offset-in-line). See locateLine for line rules. */
   function caretLine(): { block: number; line: number; offset: number } | null {
-    const sel = doc.getSelection?.();
+    const sel = activeSelection(el, doc);
     if (!sel || sel.rangeCount === 0) return null;
     const range = sel.getRangeAt(0);
     return locateLine(range.startContainer, range.startOffset);
@@ -110,7 +111,7 @@ export function createCaret({ el, doc }: { el: HTMLElement; doc: Document }) {
 
   /** Caret as (block, offset-in-block). */
   function caretInfo(): { block: number; offset: number } | null {
-    const sel = doc.getSelection?.();
+    const sel = activeSelection(el, doc);
     if (!sel || sel.rangeCount === 0) return null;
     const range = sel.getRangeAt(0);
     const block = blockIndexOf(range.startContainer);
@@ -120,8 +121,8 @@ export function createCaret({ el, doc }: { el: HTMLElement; doc: Document }) {
 
   /** Place a collapsed caret; inside PRE the closing fence is off-limits. */
   function setCaret(blockIndex: number, offset: number): void {
-    // Document.getSelection never returns null in a browsing context.
-    const sel = doc.getSelection()!;
+    const sel = activeSelection(el, doc);
+    if (!sel) return;
     const root = el.children[blockIndex] as HTMLElement;
     if (root.tagName === 'PRE') offset = Math.min(offset, preBodyEnd(root));
     const p = pointAt(root, offset);

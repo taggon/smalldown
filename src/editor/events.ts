@@ -4,6 +4,7 @@ import type { History, Snapshot } from './history';
 import type { Reconcile } from './reconcile';
 import type { EditorState } from './state';
 import { styles } from './styles';
+import { activeSelection } from './selection';
 
 /** Shared editing surface every handler takes explicitly; the factory
  * only binds. */
@@ -103,7 +104,7 @@ function onKeydown(d: EventsDeps, ev: Event): void {
   } else if (e.key === 'Backspace') {
     // Intercept only collapsed carets on a prefix line we handle; the
     // rest falls through to native deletion → input → reconcile (§6.4).
-    const sel = doc.getSelection?.();
+    const sel = activeSelection(d.el, doc);
     if ((!sel || sel.isCollapsed) && ops.handleBackspace()) e.preventDefault();
   } else if (e.key === 'Tab' && !mod) {
     if (ops.handleTab(e.shiftKey)) e.preventDefault();
@@ -187,7 +188,7 @@ function createWidgetCaretNormalizer({
   };
   function handler(): void {
     if (normalizing) return;
-    const sel = doc.getSelection?.();
+    const sel = activeSelection(el, doc);
     if (!sel || sel.rangeCount === 0) return;
     const a = sel.anchorNode;
     if (!a || !el.contains(a)) return;
@@ -226,11 +227,18 @@ function createWidgetCaretNormalizer({
         }
       }
     }
-    prevInWidget = withinWidget(doc.getSelection()?.anchorNode ?? null);
+    prevInWidget = withinWidget(activeSelection(el, doc)?.anchorNode ?? null);
   }
+  // Shadow trees fire their own selectionchange; light-DOM editors
+  // get the document event only (getRootNode() === doc).
+  const root = el.getRootNode();
   doc.addEventListener('selectionchange', handler);
+  if (root !== doc) root.addEventListener('selectionchange', handler);
   return {
-    destroy: () => doc.removeEventListener('selectionchange', handler),
+    destroy: () => {
+      doc.removeEventListener('selectionchange', handler);
+      if (root !== doc) root.removeEventListener('selectionchange', handler);
+    },
   };
 }
 
