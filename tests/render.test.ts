@@ -210,6 +210,27 @@ describe('render', () => {
     expect(inline.querySelector(`.${styles.image}`)!.classList.contains('c-img')).toBe(true);
   });
 
+  it('classes: symbol extras reach every symbol kind — markers, list/heading prefixes, fences, link URLs', () => {
+    const p = full();
+    const extra = { symbol: ['c-sym'] };
+    // inline markers (strong) and the link URL composite span
+    const inline = createElement({
+      type: 'span',
+      props: null,
+      children: renderInline(p.parseInline('**b** [a](https://x.y)'), extra),
+    }) as HTMLElement;
+    const syms = [...inline.querySelectorAll('.c-sym')];
+    expect(syms.length).toBe(6); // ** ** [ ]( url )
+    expect(syms.every((s) => s.classList.contains(styles.symbol))).toBe(true);
+    // block-level prefixes and fences
+    const head = createElement(renderBlock(p.parse('# h').children[0]!, extra)) as HTMLElement;
+    expect(head.querySelector('.c-sym')!.textContent).toBe('# ');
+    const list = createElement(renderBlock(p.parse('- a').children[0]!, extra)) as HTMLElement;
+    expect(list.querySelector('.c-sym')!.textContent).toBe('- ');
+    const pre = createElement(renderBlock(p.parse('```\nx\n```').children[0]!, extra)) as HTMLElement;
+    expect([...pre.querySelectorAll('.c-sym')].length).toBe(2); // both fences
+  });
+
   it('classes: empty arrays append nothing', () => {
     const p = full();
     const pre = createElement(renderBlock(p.parse('```\nx\n```').children[0]!, { codeBlock: [] })) as HTMLElement;
