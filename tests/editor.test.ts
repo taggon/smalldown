@@ -38,6 +38,20 @@ describe('createEditor', () => {
     expect(style?.textContent).toContain(`.${styles.url}{word-break:break-all}`);
   });
 
+  it('shadow DOM: base CSS lands in the shadow root, one per root', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+    const a = document.createElement('div');
+    const b = document.createElement('div');
+    shadow.append(a, b);
+    createEditor(a);
+    createEditor(b);
+    const injected = shadow.querySelectorAll('style');
+    expect(injected.length).toBe(1);
+    expect(injected[0]!.textContent).toContain(`.${styles.editor}{`);
+  });
+
   it('heading typography — 1.75em down by 0.15em, margins distinct from blocks', () => {
     createEditor(el, { parser: full(), value: '# a\n\n## b' });
     const css = document.head.querySelector('style')!.textContent!;
@@ -935,6 +949,25 @@ describe('bulk Tab indentation (code blocks · multi-line selections)', () => {
     setSel(body2, 13); // start of the 'more' line (after 'code  \n  ')
     key('Tab', true);
     expect(ed.getValue()).toBe('```\ncode  \nmore\n```');
+  });
+
+  it('same Tab behavior inside a shadow root (Range insert path)', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+    const inner = document.createElement('div');
+    shadow.appendChild(inner);
+    const ed = createEditor(inner, {
+      parser: full(),
+      value: '```\ncode\n```',
+    });
+    const pre = inner.children[0] as HTMLElement;
+    const body = (pre.childNodes[1] as HTMLElement).firstChild!;
+    setSel(body, 4);
+    inner.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }),
+    );
+    expect(ed.getValue()).toBe('```\ncode  \n```');
   });
 
   it('collapsed Tab on a fence line also inserts two spaces', () => {
