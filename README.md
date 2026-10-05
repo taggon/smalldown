@@ -146,7 +146,9 @@ createEditor(el, {
 ```
 
 Every render target takes extra classes: `editor`, `paragraph`,
-`heading`, `blockquote`, `list`, `codeBlock`, `hr`, `link`, `image`.
+`heading`, `blockquote`, `list`, `codeBlock`, `hr`, `link`, `image`,
+and `symbol` (the dimmed syntax markers — `**`, `#`, fences, list
+prefixes).
 They are additive (built-ins stay) and never affect the value
 round-trip.
 
