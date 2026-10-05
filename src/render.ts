@@ -7,7 +7,12 @@ import type { BlockNode, InlineNode } from './ast';
 import { styles } from './editor/styles';
 import { h, type VNode, type VNodeChild } from './vdom';
 
-const sym = (t: string): VNode => h('span', { class: styles.symbol }, t);
+// Bound per render pass so every symbol span (markers, fences, list
+// prefixes) picks up extra classes without threading them call-by-call.
+const symOf =
+  (extra?: RenderClasses) =>
+  (t: string): VNode =>
+    h('span', { class: withExtras(styles.symbol, extra?.symbol) }, t);
 
 /**
  * Additive classes per render target, from EditorOptions.classes —
@@ -22,6 +27,8 @@ export interface RenderClasses {
   hr?: string[];
   link?: string[];
   image?: string[];
+  /** Syntax marker spans (`**`, `#`, fences) — the dimmed symbols. */
+  symbol?: string[];
 }
 
 const withExtras = (base: string, extra?: string[]): string =>
@@ -39,6 +46,7 @@ export function renderInline(
   nodes: InlineNode[],
   extra?: RenderClasses,
 ): VNodeChild[] {
+  const sym = symOf(extra);
   return nodes.map((n): VNodeChild => {
     switch (n.type) {
       case 'text':
@@ -72,7 +80,7 @@ export function renderInline(
           sym(n.marker),
           ...renderInline(n.children, extra),
           sym(']('),
-          h('span', { class: `${styles.symbol} ${styles.url}` }, n.url),
+          h('span', { class: `${withExtras(styles.symbol, extra?.symbol)} ${styles.url}` }, n.url),
           ...(n.title ? [sym(` "${n.title}"`)] : []),
           sym(')'),
         ];
@@ -91,7 +99,7 @@ export function renderInline(
           ...(src
             ? [h('img', { class: styles.img, src, alt: n.alt, contenteditable: 'false', draggable: 'false' })]
             : []),
-          h('span', { class: `${styles.symbol} ${styles.imageAlt} ${styles.url}` }, n.marker + n.alt + '](' + n.url + ')'),
+          h('span', { class: `${withExtras(styles.symbol, extra?.symbol)} ${styles.imageAlt} ${styles.url}` }, n.marker + n.alt + '](' + n.url + ')'),
         );
       }
       case 'autolink': {
@@ -125,6 +133,7 @@ function line(
 const HEAD_CLS = [styles.h1, styles.h2, styles.h3, styles.h4, styles.h5, styles.h6] as const;
 
 export function renderBlock(b: BlockNode, extra?: RenderClasses): VNode {
+  const sym = symOf(extra);
   switch (b.type) {
     case 'paragraph':
       return line('p', { class: withExtras(styles.block, extra?.paragraph) }, renderInline(b.children, extra));
