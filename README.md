@@ -128,14 +128,35 @@ All optional, all combinable:
 Links only allow `http(s):`, `mailto:`, and relative `/#.` URLs; other
 schemes render as plain text.
 
-## Styling
+## Custom Styles
 
-Styles are flat single-class rules injected once per document, with
-load-time class suffixes (`sd-block-xxxxx`) to avoid collisions with
-host CSS. Override via the exported `styles` map:
+Give the render targets your own class names — they are added
+alongside the built-ins, so your stylesheet targets stable names of
+your choosing:
 
 ```js
-import { styles, STYLESHEET } from 'smalldown';
+createEditor(el, {
+  classes: { editor: 'my-editor', blockquote: 'my-quote' },
+});
+```
+
+```css
+.my-editor { font: 15px/1.6 system-ui; }
+.my-quote { border-left-color: crimson; }
+```
+
+Every render target takes extra classes: `editor`, `paragraph`,
+`heading`, `blockquote`, `list`, `codeBlock`, `hr`, `link`, `image`.
+They are additive (built-ins stay) and never affect the value
+round-trip.
+
+For retheming the built-ins themselves, they are flat single-class
+rules injected once per document, with load-time class suffixes
+(`sd-block-xxxxx`) to avoid collisions with host CSS. The exported
+`styles` map hands you those generated names:
+
+```js
+import { styles } from 'smalldown';
 
 document.head.insertAdjacentHTML(
   'beforeend',
